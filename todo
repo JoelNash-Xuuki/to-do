@@ -33,23 +33,26 @@ when 'list'
       counter += 1
     end
   end
-when 'done'
-  task_number = ARGV.shift.to_i
-  
-  File.open(TODO_FILE,'r') do |file|
-    File.open("#{TODO_FILE}.new",'w') do |new_file| 
-      counter = 1
-      file.readlines.each do |line|
-       name,created,completed = read_todo(line)
-       if task_number == counter
-         write_todo(new_file,name,created,Time.now)
-         puts "Task #{counter} completed"
-       else
-         write_todo(new_file,name,created,completed)
-       end
-         counter += 1
-       end
-     end
-   end
-   'mv #{TODO_FILE}.new #{TODO_FILE}'
-end
+when 'done'                                                                     
+  task_number = ARGV.shift.to_i                                                 
+  if File.exist?(TODO_FILE)                                                     
+    File.open(TODO_FILE, 'r') do |file|                                         
+      File.open("#{TODO_FILE}.new", 'w') do |new_file|                          
+        counter = 1                                                             
+        file.readlines.each do |line|                                           
+          name, created, completed = line.chomp.split(/,/)                      
+          if task_number == counter                                             
+            new_file.puts("#{name},#{created},#{Time.now}")                     
+            puts "Task #{counter} completed"                                    
+          else                                                                  
+            new_file.puts("#{name},#{created},#{completed}")                    
+          end                                                                   
+          counter += 1                                                          
+        end                                                                     
+      end                                                                       
+    end                                                                         
+    `mv #{TODO_FILE}.new #{TODO_FILE}`                                          
+  else                                                                          
+    puts "No such file: #{TODO_FILE}"                                           
+  end                                                                           
+end                                                                            
